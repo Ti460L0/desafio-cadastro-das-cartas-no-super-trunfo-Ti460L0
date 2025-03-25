@@ -1,13 +1,18 @@
-// Programa criado pelo aluno Tiago Lopes do curso de Engenharia de Software.
-// Utilizei de conceitos de ponteiros, funções, estruturas, loops e condicionais para criar um jogo de cartas de trunfo.
-// O jogo consiste em cada jogador cadastrar uma carta com atributos de uma cidade e escolher um atributo para comparar.
-// O jogador que tiver o maior atributo vence a rodada e o jogo é decidido em duas rodadas.
-// Em caso de empate, o superpoder é utilizado automaticamente para desempate.
+/*
+Programa criado pelo aluno Tiago Lopes do curso de Engenharia de Software.
+Utilizei de conceitos de ponteiros, funções, estruturas, loops e condicionais para criar um jogo de cartas de trunfo.
+O jogo consiste em cada jogador cadastrar uma carta com atributos de uma cidade e escolher um atributo para comparar.
+O jogador que tiver o maior atributo vence a rodada e o jogo é decidido em duas rodadas.
+Em caso de empate, o superpoder é utilizado automaticamente para desempate.
+*/
 
 #include <stdio.h>
 #include <string.h>
 
-// Criando a classe de cartas de trunfo
+/*
+Optei por utilizar uma estrutura para representar a carta, pois assim é possível armazenar todos os atributos da carta em um único objeto.
+Dessa forma, é mais fácil de manipular os dados da carta e comparar os atributos.
+*/
 typedef struct
 {
     int codigo;
@@ -18,15 +23,20 @@ typedef struct
     int pontosTuristicos;
 } Carta;
 
-// Função para entrada de dados utilizando ponteiros
+// Função para cadastrar a carta
 void cadastroCarta(Carta *carta)
 {
     printf("Digite o codigo: ");
     scanf("%d", &carta->codigo);
 
-    while (getchar() != '\n')
-        ;
-
+    
+    /*
+    Solução encontrada para limpar o buffer do teclado após a leitura de um inteiro
+    e antes da leitura de uma string pois o fgets não funciona corretamente após a
+    leitura de um inteiro com o scanf e dai não estava sendo possível digitar o nome
+    da cidade após a leitura do código.
+    */
+   while (getchar() != '\n');
     printf("Digite o Nome da Cidade: ");
     fgets(carta->nome, sizeof(carta->nome), stdin);
     carta->nome[strcspn(carta->nome, "\n")] = 0;
@@ -46,7 +56,7 @@ void cadastroCarta(Carta *carta)
     printf("\n");
 }
 
-// Função para imprimir os dados da carta após o cadastro
+// Função para imprimir a carta
 void imprimirCarta(Carta carta)
 {
     printf("Codigo: %d\n", carta.codigo);
@@ -58,7 +68,7 @@ void imprimirCarta(Carta carta)
     printf("\n");
 }
 
-// Função para comparar os atributos das cartas
+// Função para comparar os atributos
 int compararAtributo(Carta c1, Carta c2, int escolha)
 {
     switch (escolha)
