@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include <locale.h>
+
 #define NUM_ESTADOS 8
 #define NUM_CIDADES 4
 #define TOTAL_CIDADES (NUM_ESTADOS * NUM_CIDADES)
@@ -12,7 +12,7 @@ typedef struct
 {
     char codigo[4]; // Tamanho 4 para armazenar "A01\0"
     char nome[50];
-    float populacao;
+    unsigned long int populacao;
     float area;
     float pib;
     float densidadePopulacional;
@@ -28,9 +28,9 @@ int totalCidades = 0;
 // Função para calcular as propriedades da carta
 void calcularPropriedades(Cidade *cidade)
 {
-    cidade->densidadePopulacional = (cidade->area > 0) ? cidade->populacao / cidade->area : 0;
-    cidade->pibPerCapita = (cidade->populacao > 0) ? cidade->pib / cidade->populacao : 0;
-    cidade->superPoder = cidade->populacao + cidade->area + cidade->pib + cidade->pontosTuristicos;
+    cidade->densidadePopulacional = (cidade->area > 0) ? (float)cidade->populacao / cidade->area : 0;
+    cidade->pibPerCapita = (cidade->populacao > 0) ? (cidade->pib * 1e9) / (float)cidade->populacao : 0;
+    cidade->superPoder = (float)cidade->populacao + cidade->area + cidade->pib + (float)cidade->pontosTuristicos;
 }
 
 // Função para salvar as cartas em arquivo cidades.dat
@@ -39,6 +39,7 @@ void salvarCartas()
     FILE *arquivo = fopen(ARQUIVO_CIDADES, "wb");
     if (arquivo)
     {
+        fwrite(&totalCidades, sizeof(int), 1, arquivo); // Salva o total de cidades
         fwrite(cidades, sizeof(Cidade), totalCidades, arquivo);
         fclose(arquivo);
         printf("Cartas salvas com sucesso!\n");
@@ -67,16 +68,19 @@ void deletarCartas()
 // Função para carregar as cartas do arquivo cidades.dat
 void carregarCidades()
 {
+    memset(cidades, 0, sizeof(cidades)); // Limpa o vetor de cidades
     FILE *arquivo = fopen(ARQUIVO_CIDADES, "rb");
     if (arquivo)
     {
-        totalCidades = fread(cidades, sizeof(Cidade), TOTAL_CIDADES, arquivo);
+        fread(&totalCidades, sizeof(int), 1, arquivo); // Lê o total de cidades
+        fread(cidades, sizeof(Cidade), totalCidades, arquivo);
         fclose(arquivo);
         printf("%d cartas carregadas com sucesso!\n", totalCidades);
     }
     else
     {
         printf("Erro ao abrir arquivo para leitura.\n");
+        totalCidades = 0; // Garante que o número de cidades não fique corrompido
     }
 }
 
@@ -127,7 +131,7 @@ void cadastroCarta()
     cidade->nome[strcspn(cidade->nome, "\n")] = 0; // remove '\n' do final da string
 
     printf("Digite a populacao (milhoes): ");
-    scanf("%f", &cidade->populacao);
+    scanf("%lu", &cidade->populacao);
 
     printf("Digite a area (km^2): ");
     scanf("%f", &cidade->area);
@@ -148,7 +152,7 @@ void imprimirCarta(Cidade cidade)
 {
     printf("Codigo: %s\n", cidade.codigo);
     printf("Nome: %s\n", cidade.nome);
-    printf("Populacao (milhoes): %.2f\n", cidade.populacao);
+    printf("Populacao: %lu\n", cidade.populacao);
     printf("Area (km^2): %.2f\n", cidade.area);
     printf("PIB (bilhoes): %.2f\n", cidade.pib);
     printf("Pontos Turisticos: %d\n", cidade.pontosTuristicos);
@@ -176,22 +180,51 @@ void imprimirCartas()
 // Função para jogar o Super Trunfo
 void jogar()
 {
-    printf("Jogar Super Trunfo em construcao...\n");
-    printf("Deseja voltar ao menu principal? (S/N): ");
-    char escolha;
-    scanf(" %c", &escolha);
-    if (escolha == 'S' || escolha == 's')
+    char codigo1[4], codigo2[4];
+    Cidade *carta1 = NULL, *carta2 = NULL;
+
+    printf("Digite o codigo da primeira carta: ");
+    scanf(" %3s", codigo1);
+
+    for (int i = 0; i < totalCidades; i++)
     {
+        if (strcmp(cidades[i].codigo, codigo1) == 0)
+        {
+            carta1 = &cidades[i];
+            break;
+        }
+    }
+
+    if (carta1 == NULL)
+    {
+        printf("Carta com codigo %s nao encontrada.\n", codigo1);
         return;
     }
-    else
-    {
-        printf("Jogo em construcao...\n");
-        printf("Deseja voltar ao menu principal? (S/N): ");
-        scanf(" %c", &escolha);
-    }
-}
 
+    imprimirCarta(*carta1);
+
+
+    printf("Digite o codigo da segunda carta: ");
+    scanf(" %3s", codigo2);
+
+    for (int i = 0; i < totalCidades; i++)
+    {
+        if (strcmp(cidades[i].codigo, codigo2) == 0)
+        {
+            carta2 = &cidades[i];
+            break;
+        }
+    }
+
+    if (carta2 == NULL)
+    {
+        printf("Carta com codigo %s nao encontrada.\n", codigo2);
+        return;
+    }
+
+    imprimirCarta(*carta2);
+    
+}
 // Função principal
 int main()
 {
@@ -201,7 +234,7 @@ int main()
     {
         printf("\n=== Super Trunfo Paises ===\n");
         printf("1 - Jogar (em construcao...)\n");
-        printf("2 - Opcoes\n");
+        printf("2 - Gerenciar Cartas\n");
         printf("3 - Sair\n");
         printf("Opcao: ");
         scanf(" %c", &escolha);
@@ -212,14 +245,13 @@ int main()
             jogar();
             break;
         case '2':
-            printf("\n=== Opcoes ===\n");
-            printf("1 - Cadastrar Carta\n");
+            printf("\n=== Gerenciar Cartas ===\n");
+            printf("1 - Cadastrar Nova Carta\n");
             printf("2 - Imprimir Cartas\n");
-            printf("3 - Imprimir Todas as Cartas\n");
-            printf("4 - Salvar Cartas\n");
-            printf("5 - Carregar Cartas\n");
-            printf("6 - Deletar Cartas\n");
-            printf("7 - Voltar\n");
+            printf("3 - Salvar Cartas\n");
+            printf("4 - Carregar Cartas\n");
+            printf("5 - Deletar Cartas\n");
+            printf("6 - Voltar\n");
             printf("Opcao: ");
             char escolha2;
             scanf(" %c", &escolha2);
@@ -229,21 +261,19 @@ int main()
                 cadastroCarta();
                 break;
             case '2':
-                imprimirCarta(cidades[totalCidades - 1]);
-                break;
-            case '3':
                 imprimirCartas();
                 break;
-            case '4':
+            case '3':
                 salvarCartas();
                 break;
-            case '5':
+            case '4':
                 carregarCidades();
+
                 break;
-            case '6':
+            case '5':
                 deletarCartas();
                 break;
-            case '7':
+            case '6':
                 break;
             default:
                 printf("Opcao invalida! Tente novamente.\n");
