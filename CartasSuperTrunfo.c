@@ -1,233 +1,221 @@
-//Programa criado pelo aluno Tiago Lopes do curso de Engenharia de Software.
-
-/* Pontos a corrigir:
- 1. Gerar código para as cartas seguindo o padrão de A a H para o país e de 1 a 4 para a cidade. Ex. A01, A02, B01, B02...
-    Cadastrar uma carta por vez e para cada pais será permitido cadastrar até 4 cidades.
-    O código será gerado automaticamente pelo sistema e não será necessário informar ao usuário.
-    Para uma melhor usabilidade, limitarei os paises de modo a serem apenas paises que iniciem com a letra A, B, C, D, E, F, G e H.
-    Deve ser possível selecionar uma carta ou se deseja cadastrar uma nova carta.
- 2.Novas Propriedades Calculadas:
-    Densidade Populacional: População dividida pela área da cidade.
-    PIB per Capita: PIB total dividido pela população.
-    O sistema agora calculará automaticamente a Densidade Populacional e o PIB per Capita com base nos dados inseridos.
-    Essas novas propriedades serão adicionadas às informações exibidas para cada cidade.
-3. Comparação de Cartas:
-    O sistema permitirá ao usuário comparar duas cartas com base nas propriedades inseridas e calculadas.
-    Modificar para selecionar as cartas pelo código digitado.
-*/
-
-
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
+#include <locale.h>
+#define NUM_ESTADOS 8
+#define NUM_CIDADES 4
+#define TOTAL_CIDADES (NUM_ESTADOS * NUM_CIDADES)
+#define ARQUIVO_CIDADES "cidades.dat"
 
-/*
-Optei por utilizar uma estrutura para representar a carta, pois assim é possível armazenar todos os atributos da carta em um único objeto.
-Dessa forma, é mais fácil de manipular os dados da carta e comparar os atributos.
-*/
+// Estrutura para armazenar as informações da carta
 typedef struct
 {
-    int codigo;
+    char codigo[4]; // Tamanho 4 para armazenar "A01\0"
     char nome[50];
     float populacao;
     float area;
     float pib;
+    float densidadePopulacional;
+    float pibPerCapita;
     int pontosTuristicos;
-} Carta;
+    float superPoder;
+} Cidade;
 
-int gerarCodigo()
+// Vetor para armazenar todas as cidades cadastradas
+Cidade cidades[TOTAL_CIDADES];
+int totalCidades = 0;
+
+// Função para calcular as propriedades da carta
+void calcularPropriedades(Cidade *cidade)
 {
-    static int codigo = 0;
-    return ++codigo;
+    cidade->densidadePopulacional = (cidade->area > 0) ? cidade->populacao / cidade->area : 0;
+    cidade->pibPerCapita = (cidade->populacao > 0) ? cidade->pib / cidade->populacao : 0;
+    cidade->superPoder = cidade->populacao + cidade->area + cidade->pib + cidade->pontosTuristicos;
 }
 
-// Função para cadastrar a carta
-void cadastroCarta(Carta *carta)
+// Função para salvar as cartas em arquivo cidades.dat
+void salvarCartas()
 {
-    printf("Digite o codigo: ");
-    scanf("%d", &carta->codigo);
-
-    
-    /*
-    Solução encontrada para limpar o buffer do teclado após a leitura de um inteiro
-    e antes da leitura de uma string pois o fgets não funciona corretamente após a
-    leitura de um inteiro com o scanf e dai não estava sendo possível digitar o nome
-    da cidade após a leitura do código.
-    */
-   while (getchar() != '\n');
-    printf("Digite o Nome da Cidade: ");
-    fgets(carta->nome, sizeof(carta->nome), stdin);
-    carta->nome[strcspn(carta->nome, "\n")] = 0;
-
-    printf("Digite a populacao (milhoes): ");
-    scanf("%f", &carta->populacao);
-
-    printf("Digite a area (km²): ");
-    scanf("%f", &carta->area);
-
-    printf("Digite o pib: ");
-    scanf("%f", &carta->pib);
-
-    printf("Digite os pontos turisticos: ");
-    scanf("%d", &carta->pontosTuristicos);
-
-    printf("\n");
-}
-
-// Função para imprimir a carta
-void imprimirCarta(Carta carta)
-{
-    printf("Codigo: %d\n", carta.codigo);
-    printf("Nome: %s\n", carta.nome);
-    printf("Populacao(milhoes): %.2f\n", carta.populacao);
-    printf("Area(km²): %.2f\n", carta.area);
-    printf("PIB: %.2f\n", carta.pib);
-    printf("Pontos Turisticos: %d\n", carta.pontosTuristicos);
-    printf("\n");
-}
-
-// Função para comparar os atributos
-int compararAtributo(Carta c1, Carta c2, int escolha)
-{
-    switch (escolha)
+    FILE *arquivo = fopen(ARQUIVO_CIDADES, "wb");
+    if (arquivo)
     {
-    case 1:
-        return (c1.populacao > c2.populacao) - (c1.populacao < c2.populacao);
-    case 2:
-        return (c1.area > c2.area) - (c1.area < c2.area);
-    case 3:
-        return (c1.pib > c2.pib) - (c1.pib < c2.pib);
-    case 4:
-        return (c1.pontosTuristicos > c2.pontosTuristicos) - (c1.pontosTuristicos < c2.pontosTuristicos);
-    default:
-        return 0;
+        fwrite(cidades, sizeof(Cidade), totalCidades, arquivo);
+        fclose(arquivo);
+        printf("Cartas salvas com sucesso!\n");
+    }
+    else
+    {
+        printf("Erro ao abrir arquivo para escrita.\n");
     }
 }
 
-// Função para calcular o superpoder
-float superPoder(Carta c)
+// Função para deletar as cartas do arquivo cidades.dat
+void deletarCartas()
 {
-    float superPoder = c.populacao + c.area + c.pib + (float)c.pontosTuristicos;
-    return superPoder;
+    FILE *arquivo = fopen(ARQUIVO_CIDADES, "wb");
+    if (arquivo)
+    {
+        fclose(arquivo);
+        printf("Cartas deletadas com sucesso!\n");
+    }
+    else
+    {
+        printf("Erro ao abrir arquivo para escrita.\n");
+    }
+}
+
+// Função para carregar as cartas do arquivo cidades.dat
+void carregarCidades()
+{
+    FILE *arquivo = fopen(ARQUIVO_CIDADES, "rb");
+    if (arquivo)
+    {
+        totalCidades = fread(cidades, sizeof(Cidade), TOTAL_CIDADES, arquivo);
+        fclose(arquivo);
+        printf("%d cartas carregadas com sucesso!\n", totalCidades);
+    }
+    else
+    {
+        printf("Erro ao abrir arquivo para leitura.\n");
+    }
+}
+
+// Função para cadastrar a carta
+void cadastroCarta()
+{
+    if (totalCidades >= TOTAL_CIDADES)
+    {
+        printf("Limite de cartas atingido!\n");
+        return;
+    }
+
+    Cidade *cidade = &cidades[totalCidades];
+
+    // Solicitar o código da cidade a ser cadastrada
+    printf("Digite o codigo da Cidade (A01 a H04): ");
+    scanf(" %3s", cidade->codigo);
+
+    // Converter a primeira letra para maiúscula para padronizar
+    cidade->codigo[0] = toupper(cidade->codigo[0]);
+
+    // Validação do código (1 letra de A a H, 2 e 3 digitos de 01 a 04)
+    if (cidade->codigo[0] < 'A' || cidade->codigo[0] > 'H' ||
+        cidade->codigo[1] < '0' || cidade->codigo[1] > '9' ||
+        cidade->codigo[2] < '0' || cidade->codigo[2] > '9')
+    {
+        printf("Codigo invalido! Tente novamente. O formato deve ser algo como A01, B02, C03, etc.\n");
+        return;
+    }
+
+    // Transformar o número do código em inteiro para validar se está entre 01 e 04
+    int numero = (cidade->codigo[1] - '0') * 10 + (cidade->codigo[2] - '0');
+
+    if (numero < 1 || numero > 4)
+    {
+        printf("Codigo invalido! O número deve estar entre 01 e 04.\n");
+        return;
+    }
+
+    totalCidades++; // Apenas aumenta se o código for válido.
+
+    printf("Cadastro de Cidade com codigo %s\n", cidade->codigo);
+
+    printf("Digite o nome da cidade: ");
+    while (getchar() != '\n'); // Limpar o buffer do teclado
+    fgets(cidade->nome, sizeof(cidade->nome), stdin);
+    cidade->nome[strcspn(cidade->nome, "\n")] = 0; // remove '\n' do final da string
+    
+    printf("Digite a populacao (milhoes): ");
+    scanf("%f", &cidade->populacao);
+
+    printf("Digite a area (km^2): ");
+    scanf("%f", &cidade->area);
+
+    printf("Digite o PIB (bilhoes): ");
+    scanf("%f", &cidade->pib);
+
+    printf("Digite a quantidade de pontos turisticos: ");
+    scanf("%d", &cidade->pontosTuristicos);
+
+    calcularPropriedades(cidade);   
+
+    printf("Carta cadastrada com sucesso!\n");
+    
+}
+
+// Função para imprimir uma carta
+void imprimirCarta(Cidade cidade)
+{
+    printf("Codigo: %s\n", cidade.codigo);
+    printf("Nome: %s\n", cidade.nome);
+    printf("Populacao (milhoes): %.2f\n", cidade.populacao);
+    printf("Area (km^2): %.2f\n", cidade.area);
+    printf("PIB (bilhoes): %.2f\n", cidade.pib);
+    printf("Pontos Turisticos: %d\n", cidade.pontosTuristicos);
+    printf("Densidade Populacional: %.2f\n", cidade.densidadePopulacional);
+    printf("PIB per Capita: %.2f\n", cidade.pibPerCapita);
+    printf("Super Poder: %.2f\n", cidade.superPoder);
+    printf("\n");
+}
+
+// Função para imprimir todas as cartas cadastradas
+void imprimirCartas()
+{
+    if (totalCidades == 0)
+    {
+        printf("Nenhuma cidade cadastrada ainda.\n");
+        return;
+    }
+
+    for (int i = 0; i < totalCidades; i++)
+    {
+        imprimirCarta(cidades[i]);
+    }
 }
 
 // Função principal
 int main()
 {
-    Carta c1, c2;
     char escolha;
 
-    // Loop para jogar novamente    
     do
     {
-        
-        int pontosJ1 = 0, pontosJ2 = 0;
-        
-        printf("\nBem-vindo ao jogo de cartas de trunfo!\n");
-        printf("\nO que deseja fazer?\n");
-        printf("\n1 - Jogar\n2 - Cadastrar nova carta\n3 - Consultar carta\n4 - Sair\n");
-        printf("\nDigite a opcao desejada: ");
-        int opcao;
-        scanf("%d", &opcao);
+        printf("\n=== Super Trunfo Paises ===\n");
+        printf("1 - Cadastrar Carta\n");
+        printf("2 - Imprimir Cartas\n");
+        printf("3 - Salvar Cartas\n");
+        printf("4 - Carregar Cartas\n");
+        printf("5 - Deletar Cartas\n");
+        printf("6 - Sair\n");
+        printf("Opcao: ");
+        scanf(" %c", &escolha);
 
-        if (opcao == 3)
+        switch (escolha)
         {
-            printf("\nObrigado por jogar!\n");
-            return 0;
+        case '1':
+            cadastroCarta();
+            break;
+        case '2':
+            imprimirCartas();
+            break;
+        case '3':
+            salvarCartas();
+            break;
+        case '4':
+            carregarCidades();
+            break;
+        case '5':
+            deletarCartas();
+            printf("Cartas deletadas com sucesso!\n");
+            break;
+        case '6':
+            printf("Saindo...\n");
+            break;
+        default:
+            printf("Opcao invalida! Tente novamente.\n");
+            break;
         }
-
-        if (opcao == 2)
-        {
-            // Cadastrar nova carta
-        }
-
-        if (opcao == 1)
-        {
-            // Jogar
-            printf("\nJogar:\n");
-
-            printf("\nPlacar inicial:\n");
-            printf("\nJogador 1: %d x %d :Jogador 2\n", pontosJ1, pontosJ2);
-            printf("\n");
-
-            printf("\nJogador 1, cadastre sua carta:\n");
-            cadastroCarta(&c1);
-
-            printf("\nJogador 2, cadastre sua carta:\n");
-            cadastroCarta(&c2);
-
-            printf("\nCartas cadastradas:\n");
-            printf("\nJogador 1:");
-            imprimirCarta(c1);
-            printf("\nJogador 2:");
-            imprimirCarta(c2);
-
-            // Loop para que se possa resolver em duas rodadas
-            for (int i = 0; i < 2; i++)
-            {
-                int escolhaAtributo;
-                printf("\nRodada %d - Escolha um atributo para comparar:\n", i + 1);
-                printf("1 - Populacao\n2 - Area\n3 - PIB\n4 - Pontos Turisticos\n");
-                scanf("%d", &escolhaAtributo);
-
-                int resultado = compararAtributo(c1, c2, escolhaAtributo);
-
-                if (resultado > 0)
-                {
-                    printf("\nJogador 1 vence a rodada!\n");
-                    pontosJ1++;
-                }
-                else if (resultado < 0)
-                {
-                    printf("\nJogador 2 vence a rodada!\n");
-                    pontosJ2++;
-                }
-                else
-                {
-                    printf("\nEmpate na rodada!\n");
-                    i--; // Decrement i to redo the round in case of a tie
-                }
-            }
-
-            if (pontosJ1 > pontosJ2)
-            {
-                printf("\nJogador 1 venceu o jogo!\n");
-            }
-            else if (pontosJ1 < pontosJ2)
-            {
-                printf("\nJogador 2 venceu o jogo!\n");
-            }
-            // Em caso de empate, o superpoder é utilizado para desempate.
-            else
-            {
-                printf("\nO jogo terminou em empate!\n");
-                printf("\nSuperpoder ativado!\n");
-                printf("\nSuperpoder de Jogador 1: %.2f\n", superPoder(c1));
-                printf("\nSuperpoder de Jogador 2: %.2f\n", superPoder(c2));
-                printf("\nComparando superpoder...\n");
-
-                if (superPoder(c1) > superPoder(c2))
-                {
-                    printf("\nJogador 1 usou o superpoder e virou o jogo!\n");
-                    printf("\nParabens jogador 1, voce venceu o jogo!\n");
-                }
-                else if (superPoder(c2) > superPoder(c1))
-                {
-                    printf("\nJogador 2 usou o superpoder e virou o jogo!\n");
-                    printf("\nParabens jogador 2, voce venceu o jogo!\n");
-                }
-                else
-                {
-                    printf("\nO jogo terminou em empate mesmo com superpoderes!\n");
-                }
-            }
-        }
-
-        printf("\nDeseja jogar novamente? (S/N): ");
-        while (getchar() != '\n')
-            ;
-        escolha = getchar();
-    } while (escolha == 's' || escolha == 'S');
+    } while (escolha != '6');
 
     return 0;
 }
-
