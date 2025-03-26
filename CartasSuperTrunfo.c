@@ -121,10 +121,11 @@ void cadastroCarta()
     printf("Cadastro de Cidade com codigo %s\n", cidade->codigo);
 
     printf("Digite o nome da cidade: ");
-    while (getchar() != '\n'); // Limpar o buffer do teclado
+    while (getchar() != '\n')
+        ; // Limpar o buffer do teclado
     fgets(cidade->nome, sizeof(cidade->nome), stdin);
     cidade->nome[strcspn(cidade->nome, "\n")] = 0; // remove '\n' do final da string
-    
+
     printf("Digite a populacao (milhoes): ");
     scanf("%f", &cidade->populacao);
 
@@ -137,10 +138,9 @@ void cadastroCarta()
     printf("Digite a quantidade de pontos turisticos: ");
     scanf("%d", &cidade->pontosTuristicos);
 
-    calcularPropriedades(cidade);   
+    calcularPropriedades(cidade);
 
     printf("Carta cadastrada com sucesso!\n");
-    
 }
 
 // Função para imprimir uma carta
@@ -173,6 +173,25 @@ void imprimirCartas()
     }
 }
 
+// Função para jogar o Super Trunfo
+void jogar()
+{
+    printf("Jogar Super Trunfo em construcao...\n");
+    printf("Deseja voltar ao menu principal? (S/N): ");
+    char escolha;
+    scanf(" %c", &escolha);
+    if (escolha == 'S' || escolha == 's')
+    {
+        return;
+    }
+    else
+    {
+        printf("Jogo em construcao...\n");
+        printf("Deseja voltar ao menu principal? (S/N): ");
+        scanf(" %c", &escolha);
+    }
+}
+
 // Função principal
 int main()
 {
@@ -181,41 +200,65 @@ int main()
     do
     {
         printf("\n=== Super Trunfo Paises ===\n");
-        printf("1 - Cadastrar Carta\n");
-        printf("2 - Imprimir Cartas\n");
-        printf("3 - Salvar Cartas\n");
-        printf("4 - Carregar Cartas\n");
-        printf("5 - Deletar Cartas\n");
-        printf("6 - Sair\n");
+        printf("1 - Jogar (em construcao...)\n");
+        printf("2 - Opcoes\n");
+        printf("3 - Sair\n");
         printf("Opcao: ");
         scanf(" %c", &escolha);
 
         switch (escolha)
         {
         case '1':
-            cadastroCarta();
+            jogar();
             break;
         case '2':
-            imprimirCartas();
+            printf("\n=== Opcoes ===\n");
+            printf("1 - Cadastrar Carta\n");
+            printf("2 - Imprimir Cartas\n");
+            printf("3 - Imprimir Todas as Cartas\n");
+            printf("4 - Salvar Cartas\n");
+            printf("5 - Carregar Cartas\n");
+            printf("6 - Deletar Cartas\n");
+            printf("7 - Voltar\n");
+            printf("Opcao: ");
+            char escolha2;
+            scanf(" %c", &escolha2);
+            switch (escolha2)
+            {
+            case '1':
+                cadastroCarta();
+                break;
+            case '2':
+                imprimirCarta(cidades[totalCidades - 1]);
+                break;
+            case '3':
+                imprimirCartas();
+                break;
+            case '4':
+                salvarCartas();
+                break;
+            case '5':
+                carregarCidades();
+                break;
+            case '6':
+                deletarCartas();
+                break;
+            case '7':
+                break;
+            default:
+                printf("Opcao invalida! Tente novamente.\n");
+                break;
+            }
             break;
+
         case '3':
-            salvarCartas();
-            break;
-        case '4':
-            carregarCidades();
-            break;
-        case '5':
-            deletarCartas();
-            printf("Cartas deletadas com sucesso!\n");
-            break;
-        case '6':
             printf("Saindo...\n");
             break;
         default:
             printf("Opcao invalida! Tente novamente.\n");
             break;
         }
-    } while (escolha != '6');
+    } while (escolha != '3');
 
     return 0;
 }
