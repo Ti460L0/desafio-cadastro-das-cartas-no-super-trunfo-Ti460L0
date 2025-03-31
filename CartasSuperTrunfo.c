@@ -2,6 +2,9 @@
 #include <string.h>
 #include <ctype.h>
 
+// Constantes para o total de cartas e o nome do arquivo
+// TOTAL_CIDADES é o produto de NUM_ESTADOS e NUM_CIDADES
+// ARQUIVO_CIDADES é o nome do arquivo que armazena as cartas
 #define NUM_ESTADOS 8
 #define NUM_CIDADES 4
 #define TOTAL_CIDADES (NUM_ESTADOS * NUM_CIDADES)
@@ -15,9 +18,9 @@ typedef struct
     unsigned long int populacao;
     float area;
     float pib;
+    int pontosTuristicos;
     float densidadePopulacional;
     float pibPerCapita;
-    int pontosTuristicos;
     float superPoder;
 } Cidade;
 
@@ -25,7 +28,7 @@ typedef struct
 Cidade cidades[TOTAL_CIDADES];
 int totalCidades = 0;
 
-// Função para calcular as propriedades da carta
+// Função para calcular propriedades específicas da carta
 void calcularPropriedades(Cidade *cidade)
 {
     cidade->densidadePopulacional = (cidade->area > 0) ? (float)cidade->populacao / cidade->area : 0;
@@ -177,6 +180,100 @@ void imprimirCartas()
     }
 }
 
+// Função para comparar duas cartas
+void compararCartas(Cidade *c1, Cidade *c2)
+{
+    int jogador1 = 0, jogador2 = 0; // Jogadores 1 e 2 inicializados com 0 pontos
+
+    printf("Comparando cartas %s e %s\n", c1->codigo, c1->nome, c2->codigo, c2->nome);
+    printf("Populacao: %lu vs %lu\n", c1->populacao, c2->populacao);
+    printf("Area: %.2f vs %.2f\n", c1->area, c2->area);
+    printf("PIB: %.2f vs %.2f\n", c1->pib, c2->pib);
+    printf("Pontos Turisticos: %d vs %d\n", c1->pontosTuristicos, c2->pontosTuristicos);
+    printf("Densidade Populacional: %.2f vs %.2f\n", c1->densidadePopulacional, c2->densidadePopulacional);
+    printf("PIB per Capita: %.2f vs %.2f\n", c1->pibPerCapita, c2->pibPerCapita);
+    printf("Super Poder: %.2f vs %.2f\n", c1->superPoder, c2->superPoder);
+    printf("\nVencedor: ");
+    // Comparar os atributos e determinar o vencedor
+    if (c1->populacao > c2->populacao)
+    {
+        jogador1++;
+    }
+    else if (c1->populacao < c2->populacao)
+    {
+        jogador2++;
+    }
+
+    if (c1->area > c2->area)
+    {
+        jogador1++;
+    }
+    else if (c1->area < c2->area)
+    {
+        jogador2++;
+    }
+    if (c1->pib > c2->pib)
+    {
+        jogador1++;
+    }
+    else if (c1->pib < c2->pib)
+    {
+        jogador2++;
+    }
+    if (c1->pontosTuristicos > c2->pontosTuristicos)
+    {
+        jogador1++;
+    }
+    else if (c1->pontosTuristicos < c2->pontosTuristicos)
+    {
+        jogador2++;
+    }
+    if (c1->densidadePopulacional > c2->densidadePopulacional)
+    {
+        jogador1++;
+    }
+    else if (c1->densidadePopulacional < c2->densidadePopulacional)
+    {
+        jogador2++;
+    }
+    if (c1->pibPerCapita > c2->pibPerCapita)
+    {
+        jogador1++;
+    }
+    else if (c1->pibPerCapita < c2->pibPerCapita)
+    {
+        jogador2++;
+    }
+    if (c1->superPoder > c2->superPoder)
+    {
+        jogador1++;
+    }
+    else if (c1->superPoder < c2->superPoder)
+    {
+        jogador2++;
+    }
+    if (jogador1 > jogador2)
+    {
+        printf("Placar: Jogador 1 (%d) x Jogador 2 (%d)\n", jogador1, jogador2);
+        printf("Jogador 1 venceu!\n");
+    }
+    else if (jogador1 < jogador2)
+    {
+        printf("Placar: Jogador 1 (%d) x Jogador 2 (%d)\n", jogador1, jogador2);
+        printf("Jogador 2 venceu!\n");
+    }
+    else
+    {
+        printf("Placar: Jogador 1 (%d) x Jogador 2 (%d)\n", jogador1, jogador2);
+        printf("Empate!\n");
+    }
+    printf("\n");
+    printf("Pressione Enter para continuar...\n");
+    while (getchar() != '\n')
+        ;      // Limpar o buffer do teclado
+    getchar(); // Espera o usuário pressionar Enter
+}
+
 // Função para jogar o Super Trunfo
 void jogar()
 {
@@ -203,7 +300,6 @@ void jogar()
 
     imprimirCarta(*carta1);
 
-
     printf("Digite o codigo da segunda carta: ");
     scanf(" %3s", codigo2);
 
@@ -223,9 +319,11 @@ void jogar()
     }
 
     imprimirCarta(*carta2);
-    
+
+    compararCartas(carta1, carta2);
 }
-// Função principal
+
+// Função principal do para executar as funções.
 int main()
 {
     char escolha;
@@ -233,7 +331,7 @@ int main()
     do
     {
         printf("\n=== Super Trunfo Paises ===\n");
-        printf("1 - Jogar (em construcao...)\n");
+        printf("1 - Jogar o Super Trunfo\n");
         printf("2 - Gerenciar Cartas\n");
         printf("3 - Sair\n");
         printf("Opcao: ");
