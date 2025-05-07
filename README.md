@@ -1,94 +1,62 @@
-# Desafio Super Trunfo - Países - Cadastro das Cartas - Atualizado: 21/02
+# Sistema de Gerenciamento de Cartas – Comparação de Cartas
 
-Bem-vindo ao desafio "Super Trunfo - Países"! No jogo Super Trunfo, os jogadores comparam os atributos das cartas para determinar a mais forte. O tema deste Super Trunfo é "Países", onde você comparará os atributos das cidades.
+Este projeto é um sistema em Python desenvolvido para gerenciar e comparar cartas com atributos variados. O sistema possui duas versões:
 
-A empresa MateCheck contratou você para desenvolver a parte inicial do jogo, que consiste no cadastro das cartas.
+* **Versão Antiga** (`Supertrunfo_1/`): compara **todos os atributos** das cartas entre si.
+* **Versão Atual** (`Supertrunfo_2/`): compara **apenas um atributo escolhido** pelo usuário.
 
-O desafio está dividido em três níveis: Novato, Aventureiro e Mestre, com cada nível adicionando mais complexidade ao anterior.  **Você deve escolher qual desafio quer realizar.**
+---
 
-🚨 **Atenção:** O nível Novato do desafio é focado apenas no cadastro das cartas, utilizando as funções `scanf` para ler os dados e `printf` para exibi-los.
+## ✅ Como testar a aplicação
 
-## 🎮 Nível Novato: Cadastro Básico
+Para testar rapidamente, duas cartas já estão cadastradas com os seguintes códigos:
 
-No nível Novato, você iniciará criando o sistema básico do jogo Super Trunfo com o tema "Países". As cartas serão divididas por estados, cada um com quatro cidades.  Imagine um país dividido em oito estados (A a H), e cada estado com quatro cidades (1 a 4).  A combinação forma o código da carta (ex: A01, B02).
+* **A01**
+* **B01**
 
-🚩 **Objetivo:** Criar um programa em C que cadastra **duas** cartas com os seguintes atributos:
+### Passo a passo:
 
-*   População (`int`)
-*   Área (`float`)
-*   PIB (`float`)
-*   Número de pontos turísticos (`int`)
+1. Execute o arquivo principal da **versão desejada** (antiga ou atual).
+2. No menu principal, selecione a opção `2 - Gerenciar cartas`.
+3. Em seguida, escolha a opção `4 - Carregar cartas`.
+4. As cartas A01 e B01 serão carregadas automaticamente para que você possa testá-las.
 
-⚙️ **Funcionalidades do Sistema:**
+---
 
-*   O sistema permitirá ao usuário cadastrar os dados de **duas** cartas manualmente via terminal.
-*   Após o cadastro, o sistema exibirá os dados de cada cidade de forma organizada.
+## 🔧 Menu Principal - Explicação das Opções
 
-📥 **Entrada** e 📤 **Saída de Dados:**
+### `1 - Jogar`
 
-*   O usuário insere os dados de cada carta interativamente via `scanf`.
-*   O programa exibe os dados cadastrados usando `printf`, com cada atributo em uma nova linha.
+* Inicia a comparação entre duas cartas.
+* Na versão antiga, **todos os atributos** são comparados e a carta com maior número de atributos superiores vence.
+* Na versão atual, você escolhe **um único atributo** para comparar.
 
-**Simplificações para o Nível Novato:**
+### `2 - Gerenciar cartas`
 
-*   Cadastre apenas **duas** cartas.
-*   Concentre-se na leitura, armazenamento e exibição. Não implemente comparações ou outros recursos.
-*   **Não use** laços (`for`, `while`) ou condicionais (`if`, `else`).
+Submenu que permite ações sobre o baralho de cartas:
 
+* `1 - Adicionar carta`: Permite criar uma nova carta informando nome, código e valores de atributos.
+* `2 - Remover carta`: Remove uma carta do baralho informando seu código.
+* `3 - Exibir cartas`: Lista todas as cartas cadastradas no sistema.
+* `4 - Carregar cartas`: Carrega automaticamente as cartas A01 e B01 para teste.
 
-## 🛡️ Nível Aventureiro: Cálculo de Atributos
+### `3 - Sair`
 
-No nível Aventureiro, você expandirá o sistema para incluir o cálculo de dois novos atributos: Densidade Populacional e PIB per Capita.
+* Encerra o programa.
 
-🆕 **Diferença em relação ao Nível Novato:**
+---
 
-*   **Novos Atributos:**
-    *   Densidade Populacional: População / Área (`float`)
-    *   PIB per Capita: PIB / População (`float`)
+## 🗂 Estrutura de Pastas
 
-⚙️ **Funcionalidades do Sistema:**
+* `Supertrunfo_1/`: Contém a implementação que **compara todos os atributos** entre duas cartas.
+* `Supertrunfo_2/`: Contém a implementação atualizada, onde o usuário escolhe **um único atributo** para realizar a comparação.
 
-*   O sistema calculará automaticamente a Densidade Populacional e o PIB per Capita.
-*   Os novos atributos serão exibidos junto com os demais.
+---
 
-📥 **Entrada** e 📤 **Saída de Dados:**
+## ✉️ Contato
 
-*   Mesma entrada do nível Novato.
-*   A saída exibirá também os atributos calculados.
+Em caso de dúvidas ou sugestões, entre em contato com o desenvolvedor do projeto.
 
-**Simplificações para o Nível Intermediário:**
+---
 
-*   Continue cadastrando apenas **duas** cartas.
-*   Continue **sem usar** laços (`for`, `while`) ou condicionais (`if`, `else`).
-
-
-
-## 🏆 Nível Mestre: Comparação e Super Poder
-
-No nível Mestre, você implementará a comparação entre duas cartas e o cálculo do "Super Poder".
-
-🆕 **Diferença em relação ao Nível Aventureiro:**
-
-*   **Comparação de Cartas:** O usuário poderá comparar as duas cartas.
-*   **Super Poder:** Soma de todos os atributos (inclusive os calculados), com a densidade populacional *invertida* antes da soma (1/densidade).  Tipo: `float`.
-
-⚙️ **Funcionalidades do Sistema:**
-
-*   Comparação atributo a atributo, mostrando qual carta venceu (1 se a Carta 1 vence, 0 se a Carta 2 vence).
-*   Para Densidade Populacional, vence a carta com o *menor* valor.
-*   Para os demais atributos (e o Super Poder), vence a carta com o *maior* valor.
-
-📥 **Entrada** e 📤 **Saída de Dados:**
-
-*   Mesma entrada dos níveis anteriores, mas a População agora é `unsigned long int`.
-*   A saída mostrará o resultado da comparação para cada atributo e o Super Poder.
-
-**Observação:**  Preste atenção à conversão de tipos ao calcular o Super Poder!
-
-
-## 🏁 Conclusão
-
-Ao concluir qualquer um dos níveis, você terá dado um passo importante no desenvolvimento do Super Trunfo - Países. Boa sorte e divirta-se programando!
-
-Equipe de Ensino - MateCheck
-content_copy
+Se quiser que eu adapte esse texto diretamente ao conteúdo do arquivo que você tentou enviar, por favor reenvie o arquivo para que eu possa incluir detalhes específicos, como nomes exatos de funções, atributos das cartas, ou estrutura do código. Deseja isso?
